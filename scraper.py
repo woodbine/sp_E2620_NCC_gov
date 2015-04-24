@@ -27,7 +27,7 @@ block = soup.find('div',{'class':'article-section-content'})
 links = block.findAll('a', href=True)
 
 for link in links:
-	url = link['href']
+	url = 'http://www.norfolk.gov.uk' + link['href']
 	#  grab the data out of the onclick instrution from javascript
 	#  clean up the onclick data
 	title = link.contents[0]

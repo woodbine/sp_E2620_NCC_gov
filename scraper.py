@@ -84,8 +84,8 @@ def convert_mth_strings ( mth_string ):
 #### VARIABLES 1.0
 
 entity_id = "E2620_NCC_gov"
-url = "http://www.norfolk.gov.uk/Council_and_democracy/Your_Information/Open_Data/Payments_to_suppliers/index.htm"
-archiveurl = 'http://www.norfolk.gov.uk/Council_and_democracy/Your_information/Open_Data/Payments_to_suppliers/Archive/index.htm'
+url = "https://www.norfolk.gov.uk/what-we-do-and-how-we-work/open-data-fois-and-data-protection/open-data/payments-to-suppliers"
+archiveurl = 'https://www.norfolk.gov.uk/what-we-do-and-how-we-work/open-data-fois-and-data-protection/open-data/payments-to-suppliers/payments-to-suppliers-archive'
 errors = 0
 data = []
 
@@ -97,38 +97,32 @@ soup = BeautifulSoup(html, 'lxml')
 
 #### SCRAPE DATA
 
-block = soup.find('div',{'class':'article-section-content'})
-links = block.findAll('a', href=True)
-
-for link in links:
-    url = 'http://www.norfolk.gov.uk' + link['href']
-    title = link.contents[0]
-    csvYr = title.split(' ')[1]
-    csvMth = title.split(' ')[0][:3]
-    csvMth = csvMth.upper()
-    csvMth = convert_mth_strings(csvMth)
-    data.append([csvYr, csvMth, url])
+blocks = soup.find('div',{'id':'main'}).find_all('ul')
+for block in blocks:
+    links = block.findAll('a', href=True)
+    for link in links:
+        url = link['href']
+        title = link.contents[0]
+        csvYr = title.split(' ')[1]
+        csvMth = title.split(' ')[0][:3]
+        csvMth = csvMth.upper()
+        csvMth = convert_mth_strings(csvMth)
+        data.append([csvYr, csvMth, url])
 archiveurlhtml = urllib2.urlopen(archiveurl)
 archiveurlsoup = BeautifulSoup(archiveurlhtml, 'lxml')
-block = archiveurlsoup.find('div',{'class':'article-section-content'})
-links = block.findAll('a', href=True)
-
-for link in links:
-    name = link.text
-    if 'NCC AP' in name or 'Norfolk County Council' in name:
-        url = 'http://www.norfolk.gov.uk' + link['href']
-        title = link.contents[0]
-        mth = title.split('500 -')[-1].strip().split(' ')
-        csvYr = mth[1]
-        csvMth = mth[0][:3]
-        if 'Oct-Nov' in mth[0] or 'Feb-July' in mth[0]:
-            csvMth = 'Q0'
+blocks =archiveurlsoup.find('div',{'id':'main'}).find_all('ul')
+for block in blocks:
+    links = block.findAll('a', href=True)
+    for link in links:
+        name = link.text
+        if 'NCC AP' in name or 'Norfolk County Council' in name:
+            url = link['href']
+            title = link.text
+            mth = title.split('500 ')[-1].strip().split(' ')
             csvYr = mth[1]
-        if 'Jan-Mar' in mth:
-            csvMth = 'Q1'
-            csvYr = mth[1]
-        csvMth = convert_mth_strings(csvMth.upper())
-        data.append([csvYr, csvMth, url])
+            csvMth = mth[0][:3]
+            csvMth = convert_mth_strings(csvMth.upper())
+            data.append([csvYr, csvMth, url])
 
 #### STORE DATA 1.0
 

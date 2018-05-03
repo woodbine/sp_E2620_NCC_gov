@@ -105,6 +105,18 @@ for block in blocks:
         title = link.contents[0]
         csvYr = title.split(' ')[1]
         csvMth = title.split(' ')[0][:3]
+        if 'January to March' in title:
+            csvMth = 'Q1'
+            csvYr = title.split()[3]
+        if 'April to June' in title:
+            csvMth = 'Q2'
+            csvYr = title.split()[3]
+        if 'July to September' in title:
+            csvMth = 'Q3'
+            csvYr = title.split()[3]
+        if 'October to December' in title:
+            csvMth = 'Q4'
+            csvYr = title.split()[3]
         csvMth = csvMth.upper()
         csvMth = convert_mth_strings(csvMth)
         data.append([csvYr, csvMth, url])
